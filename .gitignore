@@ -78,7 +78,10 @@ venv/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-data/
+data/interim/
+data/external/
+data/raw/
+
 
 # Mac OS-specific storage files
 .DS_Store
