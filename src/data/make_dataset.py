@@ -40,7 +40,19 @@ for file in path_db.iterdir():
 base_airbnb
 
 #! Exclude unwanted columns
-# *9
+# ? As we have lots of unwanted columns an new tabular file should be created
+# ? thus allowing a better column analysis and let us to chose which column we
+# ? are going to drop of our dataset. This file should have the 1st 1000 records
+# ? Column types we're going to drop:
+# ? 1.
+# ? 2.
+# ? 3.
+# ? 4.
+# ? 5.
+# ? 6.
+
+print(list(base_airbnb.columns))
+base_airbnb.head(1000).to_csv('../../data/processed/first_1000records.csv')
 
 #! Adjust Nan values
 
