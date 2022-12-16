@@ -3,6 +3,8 @@
 import pandas as pd
 import pathlib
 import numpy as np
+import seaborn as sb
+import matplotlib.pyplot as plt
 
 
 months: dict = {
@@ -132,7 +134,27 @@ base_airbnb['extra_people'] = base_airbnb.get('extra_people').astype(
 )
 print(base_airbnb.dtypes)
 
+"""
+! Exploratory analysis treat Outliers
+-We're going analyse every feature and compare them for:
+1-Find correlationship between features and decide if we gonna keep both
+features
+2-Remove outliers
+3-Check if all features that we have, make sense to our model. If some of them
+don't help us, we have to remove
 
-#! Exploratory analysis treat Outliers
+-We gonna start wiith price and extra_people. These are the continuous numeric
+values.
 
+-After that, we are going to analyse columns with discrete values.
+
+-Finally, we gonna evaluate text columns and which ones make sense to our
+analysis
+"""
+# ? Creating our plt figure
+plt.figure(figsize=(15, 10))
+# ? Pandas function for correlationship
+# print(base_airbnb.corr())
+# ? Using seaborn to plot the correlationship between columns
+sb.heatmap(base_airbnb.corr(), annot=True, cmap='Greens')
 #! Encoding
