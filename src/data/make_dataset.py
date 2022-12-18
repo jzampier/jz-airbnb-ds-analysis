@@ -157,4 +157,25 @@ plt.figure(figsize=(15, 10))
 # print(base_airbnb.corr())
 # ? Using seaborn to plot the correlationship between columns
 sb.heatmap(base_airbnb.corr(), annot=True, cmap='Greens')
+
+# ? Exclude outliers
+"""
+Defining some functions to analyse and remove outliers
+Amplitude = Q3 - Q1
+Lower limit = Q1 -1.5 x Amplitude
+Upper limit = Q3 + 1,5 x Amplitude
+"""
+
+
+def limites(column: list):
+    q1 = column.quantile(0.25)
+    q3 = column.quantile(0.75)
+    amplitude = q3 - q1
+    return q1 - 1.5 * amplitude, q3 + 1.5 * amplitude
+
+
+print(limites(base_airbnb.get('price')))
+
+# todo 17
+
 #! Encoding
