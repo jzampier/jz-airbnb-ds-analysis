@@ -176,6 +176,28 @@ def limites(column: list):
 
 print(limites(base_airbnb.get('price')))
 
-# todo 17
+"""
+Box plot
+Let's define a function to plot
+"""
+
+
+def diagrama_caixa(column: list):
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.set_size_inches(15, 5)
+    sb.boxplot(x=column, ax=ax1)
+    ax2.set_xlim(limites(column))
+    sb.boxplot(x=column, ax=ax2)
+
+
+def histogram(column: list):
+    plt.figure(figsize=(15, 5))
+    # sb.histplot(column, kde=True)
+    sb.histplot(column, kde=True, stat="density", kde_kws=dict(cut=3))
+
+
+diagrama_caixa(base_airbnb.get('price'))
+histogram(base_airbnb.get('price'))
+
 
 #! Encoding
