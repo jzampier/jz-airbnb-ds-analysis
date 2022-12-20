@@ -1,7 +1,6 @@
 astroid==2.12.13
 asttokens==2.2.1
 backcall==0.2.0
-colorama==0.4.6
 comm==0.1.2
 contourpy==1.0.6
 cycler==0.11.0
@@ -40,7 +39,6 @@ pylint==2.15.8
 pyparsing==3.0.9
 python-dateutil==2.8.2
 pytz==2022.6
-pywin32==305
 pyzmq==24.0.1
 seaborn==0.12.1
 six==1.16.0

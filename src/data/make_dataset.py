@@ -212,6 +212,12 @@ def histogram(column: list):
     # sb.histplot(column, kde=True, stat="density", kde_kws=dict(cut=3))
 
 
+def graph_bar(column: list):
+    plt.figure(figsize=(15, 5))
+    ax = sb.barplot(x=column.value_counts().index, y=column.value_counts())
+    ax.set_xlim(limites(column))
+
+
 diagrama_caixa(base_airbnb.get('price'))
 histogram(base_airbnb.get('price'))
 # *price
@@ -227,5 +233,25 @@ base_airbnb, removed_rows = rm_outliers(base_airbnb, 'extra_people')
 print(f'Removed {removed_rows} rows.')
 histogram(base_airbnb.get('extra_people'))
 
-# 21
+"""
+done - host_listings_count         float64
+accommodates                  int64
+bathrooms                   float64
+bedrooms                    float64
+beds                        float64
+guests_included               int64
+minimum_nights                int64
+maximum_nights                int64
+number_of_reviews             int64
+"""
+# *host_listings_count
+diagrama_caixa(base_airbnb.get('host_listings_count'))
+graph_bar(base_airbnb.get('host_listings_count'))
+
+# ? We can remove outliers for this category because people with 6 or more
+# ? buildings are not our targets to analyze
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'host_listings_count')
+print(f'Removed {removed_rows} rows.')
+
+
 #! Encoding
