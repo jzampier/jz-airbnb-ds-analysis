@@ -174,7 +174,22 @@ def limites(column: list):
     return q1 - 1.5 * amplitude, q3 + 1.5 * amplitude
 
 
-print(limites(base_airbnb.get('price')))
+def rm_outliers(df: pd.DataFrame, col_name: str) -> tuple[pd.DataFrame, int]:
+    """remove outliers from column and count how many rows were excluded
+
+    Keyword arguments:
+    df -- dataframe
+    col_name -- column name
+    Return: Exclude outliers and returns a dataframe withou these outliers
+    """
+    quant_rows = df.shape[0]
+    lower_lim, upper_lim = limites(df.get(col_name))
+    df = df.loc[((df.get(col_name) >= lower_lim) & (df.get(col_name) <= upper_lim)), :]
+    act_rows_quant = quant_rows - df.shape[0]
+    return df, act_rows_quant
+
+
+# print(limites(base_airbnb.get('price')))
 
 """
 Box plot
@@ -192,12 +207,25 @@ def diagrama_caixa(column: list):
 
 def histogram(column: list):
     plt.figure(figsize=(15, 5))
-    # sb.histplot(column, kde=True)
-    sb.histplot(column, kde=True, stat="density", kde_kws=dict(cut=3))
+    # sb.histplot(column)
+    sb.histplot(column, kde=True)
+    # sb.histplot(column, kde=True, stat="density", kde_kws=dict(cut=3))
 
 
 diagrama_caixa(base_airbnb.get('price'))
 histogram(base_airbnb.get('price'))
+# *price
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'price')
+print(f'Removed {removed_rows} rows.')
+histogram(base_airbnb.get('price'))
 
+# *extra_people
+diagrama_caixa(base_airbnb.get('extra_people'))
+histogram(base_airbnb.get('extra_people'))
 
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'extra_people')
+print(f'Removed {removed_rows} rows.')
+histogram(base_airbnb.get('extra_people'))
+
+# 21
 #! Encoding
