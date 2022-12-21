@@ -438,3 +438,28 @@ map_la_lo_price = px.density_mapbox(
 map_la_lo_price
 
 #! Encoding
+"""
+Transform all text information in numbers
+Features with values True or False we're going to replace to 1 or 0
+Categorical features we're going to use Dummies to encode them.
+"""
+# Print features list
+print(base_airbnb.columns)
+tf_columns = ['host_is_superhost', 'instant_bookable', 'is_business_travel_ready']
+categorical_columns = ['property_type', 'room_type', 'bed_type', 'cancellation_policy']
+
+# Create an encoded copy of our dataframe
+encoded_base_airbnb = base_airbnb.copy()
+for column in tf_columns:
+    encoded_base_airbnb.loc[encoded_base_airbnb.get(column) == 't', column] = 1
+    encoded_base_airbnb.loc[encoded_base_airbnb.get(column) == 'f', column] = 0
+# Print 1 row to check if its ok
+print(encoded_base_airbnb.iloc[0])
+
+# Using Dummies to adjust Categorical values using pandas pd.get_dummies()
+encoded_base_airbnb = pd.get_dummies(
+    data=encoded_base_airbnb, columns=categorical_columns
+)
+encoded_base_airbnb.shape
+
+#! Done with data adjustments, ready to modelling
