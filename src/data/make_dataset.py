@@ -5,6 +5,7 @@ import pathlib
 import numpy as np
 import seaborn as sb
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 
 months: dict = {
@@ -234,15 +235,16 @@ print(f'Removed {removed_rows} rows.')
 histogram(base_airbnb.get('extra_people'))
 
 """
+Analysis of Discret Numerical Features
 done - host_listings_count         float64
-accommodates                  int64
-bathrooms                   float64
-bedrooms                    float64
-beds                        float64
-guests_included               int64
-minimum_nights                int64
-maximum_nights                int64
-number_of_reviews             int64
+done - accommodates                  int64
+done - bathrooms                   float64
+done - bedrooms                    float64
+done - beds                        float64
+done - guests_included               int64
+done - minimum_nights                int64
+done - maximum_nights                int64
+done - number_of_reviews             int64
 """
 # *host_listings_count
 diagrama_caixa(base_airbnb.get('host_listings_count'))
@@ -253,5 +255,186 @@ graph_bar(base_airbnb.get('host_listings_count'))
 base_airbnb, removed_rows = rm_outliers(base_airbnb, 'host_listings_count')
 print(f'Removed {removed_rows} rows.')
 
+# *accommodates
+diagrama_caixa(base_airbnb.get('accommodates'))
+graph_bar(base_airbnb.get('accommodates'))
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'accommodates')
+print(f'Removed {removed_rows} rows.')
+
+# *bathrooms
+diagrama_caixa(base_airbnb.get('bathrooms'))
+plt.figure(figsize=(15, 5))
+sb.barplot(
+    x=base_airbnb.get('bathrooms').value_counts().index,
+    y=base_airbnb.get('bathrooms').value_counts(),
+)
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'bathrooms')
+print(f'Removed {removed_rows} rows.')
+
+# *bedrooms
+diagrama_caixa(base_airbnb.get('bedrooms'))
+graph_bar(base_airbnb.get('bedrooms'))
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'bedrooms')
+print(f'Removed {removed_rows} rows.')
+
+# *beds
+diagrama_caixa(base_airbnb.get('beds'))
+graph_bar(base_airbnb.get('beds'))
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'beds')
+print(f'Removed {removed_rows} rows.')
+
+# *guests_included
+diagrama_caixa(base_airbnb.get('guests_included'))
+graph_bar(base_airbnb.get('guests_included'))
+
+# ? We're going to remove this feature from our analysis due problems related
+# ? to fullfilled fields
+
+base_airbnb = base_airbnb.drop('guests_included', axis=1)
+base_airbnb.shape
+
+# *minimum_nights
+diagrama_caixa(base_airbnb.get('minimum_nights'))
+graph_bar(base_airbnb.get('minimum_nights'))
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'minimum_nights')
+print(f'Removed {removed_rows} rows.')
+
+# *maximum_nights
+diagrama_caixa(base_airbnb.get('maximum_nights'))
+graph_bar(base_airbnb.get('maximum_nights'))
+
+# ? We can remove this feature from our analysis
+base_airbnb = base_airbnb.drop('maximum_nights', axis=1)
+base_airbnb.shape
+
+# *number_of_reviews
+diagrama_caixa(base_airbnb.get('number_of_reviews'))
+graph_bar(base_airbnb.get('number_of_reviews'))
+
+# ? We can remove this feature from our analysis
+base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
+base_airbnb.shape
+
+"""
+Analysis of text Features
+
+done - property_type                object
+done - room_type                    object
+done - bed_type                     object
+amenities                    object
+done - cancellation_policy          object
+"""
+# *property_type
+tabhouse_types = base_airbnb.get('property_type').value_counts()
+print(tabhouse_types)
+# ?Using count_plot
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='property_type', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+# ?Group every kind of property lower than 2000 in 'other' category
+# ?Create a list of properties that have lower than 2000 occurrences
+columns_to_group = [
+    type for type in tabhouse_types.index if tabhouse_types.get(type) < 2000
+]
+print(columns_to_group)
+
+for ptype in columns_to_group:
+    base_airbnb.loc[
+        base_airbnb.get('property_type') == ptype, 'property_type'
+    ] = 'Other'
+print(base_airbnb.get('property_type').value_counts())
+
+# *room_type
+print(base_airbnb.get('room_type').value_counts())
+# ?Using count_plot
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='room_type', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+# *bed_type
+print(base_airbnb.get('bed_type').value_counts())
+# ?Using count_plot
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='bed_type', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+bed_typ = base_airbnb.get('bed_type').value_counts()
+columns_to_group = [type for type in bed_typ.index if bed_typ.get(type) < 10_000]
+print(columns_to_group)
+
+for type in columns_to_group:
+    base_airbnb.loc[base_airbnb.get('bed_type') == type, 'bed_type'] = 'Other'
+print(base_airbnb.get('bed_type').value_counts())
+
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='bed_type', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+# *cancellation_policy
+print(base_airbnb.get('cancellation_policy').value_counts())
+# ?Using count_plot
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='cancellation_policy', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+canc_pol = base_airbnb.get('cancellation_policy').value_counts()
+print(canc_pol.index)
+print(canc_pol.values)
+
+columns_to_group = [type for type in canc_pol.index if canc_pol.get(type) < 10_000]
+print(columns_to_group)
+
+for type in columns_to_group:
+    base_airbnb.loc[
+        base_airbnb.get('cancellation_policy') == type, 'cancellation_policy'
+    ] = 'strict'
+print(base_airbnb.get('cancellation_policy').value_counts())
+
+plt.figure(figsize=(15, 5))
+graph = sb.countplot(x='cancellation_policy', data=base_airbnb)
+graph.tick_params(axis='x', rotation=90)
+
+# ***amenities***
+# ? It's almost impossible to compare each category of amenities, so we're going
+# ? to count how many amenities are in each house/apartment (more amenities, more expensive)
+base_airbnb['n_amenities'] = base_airbnb['amenities'].str.split(',').apply(len)
+# Drop the former category 'amenities'
+base_airbnb = base_airbnb.drop('amenities', axis=1)
+base_airbnb.shape
+diagrama_caixa(base_airbnb.get('n_amenities'))
+graph_bar(base_airbnb.get('n_amenities'))
+
+# ? We can remove outliers for this category
+base_airbnb, removed_rows = rm_outliers(base_airbnb, 'n_amenities')
+print(f'Removed {removed_rows} rows.')
+
+# *Visualization of maps
+map_sample = base_airbnb.sample(n=100000)
+map_center = {
+    'lat': map_sample.get('latitude').mean(),
+    'lon': map_sample.get('longitude').mean(),
+}
+map_la_lo_price = px.density_mapbox(
+    map_sample,
+    lat='latitude',
+    lon='longitude',
+    z='price',
+    radius=2.5,
+    center=map_center,
+    zoom=10,
+    mapbox_style='stamen-terrain',
+)
+map_la_lo_price
 
 #! Encoding
