@@ -6,6 +6,9 @@ import numpy as np
 import seaborn as sb
 import matplotlib.pyplot as plt
 import plotly.express as px
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
 
 
 months: dict = {
@@ -463,3 +466,32 @@ encoded_base_airbnb = pd.get_dummies(
 encoded_base_airbnb.shape
 
 #! Done with data adjustments, ready to modelling
+# ? Evaluation Metrics
+def evaluate_model(model_name, y_test, prevision):
+    """Evaluates our model
+
+    Arguments:
+        model_name -- Name
+        y_test -- Price of buildings
+        prevision -- Price that our model gave us
+    """
+    r2 = r2_score(y_test, prevision)
+    RSME = np.sqrt(mean_squared_error(y_test, prevision))
+    return f'Model {model_name} : \nR2 : {r2}\nRSME : {RSME}'
+
+
+# ? Choice of models to be tested (46)
+"""
+1. Random Forest
+2. Linear Regression
+3. Extra Tree
+"""
+models = {
+    'RandomForest': RandomForestRegressor(),
+    'LinearRegression': LinearRegression(),
+    'ExtraTrees': ExtraTreesRegressor(),
+}
+y = encoded_base_airbnb.get('price')
+x = encoded_base_airbnb.drop('price', axis=1)
+
+"""Split data into Training and test - 47"""
