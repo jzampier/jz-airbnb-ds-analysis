@@ -9,6 +9,7 @@ import plotly.express as px
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+from sklearn.model_selection import train_test_split
 
 
 months: dict = {
@@ -477,7 +478,7 @@ def evaluate_model(model_name, y_test, prevision):
     """
     r2 = r2_score(y_test, prevision)
     RSME = np.sqrt(mean_squared_error(y_test, prevision))
-    return f'Model {model_name} : \nR2 : {r2}\nRSME : {RSME}'
+    return f'Model {model_name} : \nR2 : {r2:.2%}\nRSME : {RSME:.2f}'
 
 
 # ? Choice of models to be tested (46)
@@ -486,12 +487,100 @@ def evaluate_model(model_name, y_test, prevision):
 2. Linear Regression
 3. Extra Tree
 """
+model_rf = RandomForestRegressor()
+model_lr = LinearRegression()
+model_et = ExtraTreesRegressor()
 models = {
-    'RandomForest': RandomForestRegressor(),
-    'LinearRegression': LinearRegression(),
-    'ExtraTrees': ExtraTreesRegressor(),
+    'RandomForest': model_rf,
+    'LinearRegression': model_lr,
+    'ExtraTrees': model_et,
 }
 y = encoded_base_airbnb.get('price')
 x = encoded_base_airbnb.drop('price', axis=1)
 
-"""Split data into Training and test - 47"""
+"""Split data into Training and test 80/20"""
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+
+for model_name, model in models.items():
+    # train
+    model.fit(x_train, y_train)
+
+    # test
+    prediction = model.predict(x_test)
+    print(evaluate_model(model_name, y_test, prediction))
+
+"""
+?Model ExtraTrees : Best model
+?R2 : 97.50% (greatest value)
+?RSME : 41.94 (lowest value)
+Model RandomForest : 
+R2 : 97.24%
+RSME : 44.05
+Model LinearRegression : 
+R2 : 32.70%
+RSME : 217.54
+
+? ChosenModel : Extra Trees Regressor
+? It gave us the greatest value R2 value and the lowest RSME.
+Linear Regression had the worst performance for our database
+"""
+
+#! Enhance or adjust our model
+"""
+Check which columns impact our model, this way we can remove less significant
+columns and improve our model performance
+
+1st Result - Removed is_business_travel_ready column:
+Model ExtraTrees : 3m40.5s
+R2 : 97.51%
+RSME : 41.83
+
+2nd Result - Dropped bed_type columns:
+Model ExtraTrees : 3m4.2s
+R2 : 97.48%
+RSME : 42.06
+"""
+print(model_et.feature_importances_)
+print(model_et.feature_names_in_)
+# Create a dataframe with columns and importance for our chosen model
+importance_columns = pd.DataFrame(
+    model_et.feature_importances_, model_et.feature_names_in_
+)
+importance_columns = importance_columns.sort_values(by=0, ascending=False)
+# Graphbar
+plt.figure(figsize=(15, 5))
+ax = sb.barplot(x=importance_columns.index, y=importance_columns[0])
+ax.tick_params(axis='x', rotation=90)
+
+# Exclude column > train > test > Evaluate
+"""
+is_business_travel_ready seems not impact our model
+we're going to drop it, train our model, test and evaluate it
+"""
+encoded_base_airbnb = encoded_base_airbnb.drop('is_business_travel_ready', axis=1)
+y = encoded_base_airbnb.get('price')
+x = encoded_base_airbnb.drop('price', axis=1)
+"""Split data into Training and test 80/20"""
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+model_et.fit(x_train, y_train)
+prediction = model_et.predict(x_test)
+print(evaluate_model('ExtraTrees', y_test, prediction))
+
+# Exclude column > train > test > Evaluate
+"""
+bed_type columns seems not impact our model
+we're going to drop them, train our model, test and evaluate it
+"""
+test_db = encoded_base_airbnb.copy()
+for column in test_db:
+    if 'bed_type' in column:
+        test_db = test_db.drop(column, axis=1)
+y = test_db.get('price')
+x = test_db.drop('price', axis=1)
+"""Split data into Training and test 80/20"""
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+model_et.fit(x_train, y_train)
+prediction = model_et.predict(x_test)
+print(evaluate_model('ExtraTrees', y_test, prediction))
+
+#! Model deployment
