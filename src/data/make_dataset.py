@@ -10,6 +10,7 @@ from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
 from sklearn.model_selection import train_test_split
+import joblib
 
 
 months: dict = {
@@ -584,3 +585,18 @@ prediction = model_et.predict(x_test)
 print(evaluate_model('ExtraTrees', y_test, prediction))
 
 #! Model deployment
+"""
+Step 1 - Create a joblib file with our model
+Step 2 - Choose deployment format
+            - exe + Tkinter
+            - Website (Flask)
+            - direct usage (Streamlit)
+Step 3 - Create another python file (jupyter or any code editor)
+Step 4 - Import Streamlit create code
+Step 5 - Assign to button, our model loading
+Step 6 - Deploymnet done
+"""
+x['price'] = y
+x.to_csv('../../data/processed/data_proc.csv')
+
+joblib.dump(model_et, '../models/model_et.joblib')
